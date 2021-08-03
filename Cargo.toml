@@ -1,0 +1,53 @@
+[package]
+name = "poseidongr16"
+version = "0.1.0"
+authors = ["hossein <mfaghihi.h@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ark-ec = { version = "^0.3.0", default_features = false }
+ark-ff = { version = "^0.3.0", default_features = false }
+ark-serialize = { version = "^0.3.0", default_features = false}
+ark-std = { version = "^0.3.0", default-features = false }
+derivative = { version = "2.1.1", features = [ "use_core" ] }
+digest = { version = "0.9.0", default_features = false }
+rand_chacha = { version = "0.3.0", default-features = false }
+ark-groth16= { version = "0.3.0", default-features = false }
+ark-ed-on-bls12-381 = { version = "0.3.0", default-features = false, features = [ "r1cs" ] }
+ark-bls12-381 = { version = "0.3.0", default-features = false, features = [ "curve" ] }
+ark-ed-on-bls12-377 = { version = "0.3.0", default-features = false, features = [ "r1cs" ] }
+ark-bls12-377 = { version = "0.3.0", default-features = false, features = [ "curve" ] }
+ark-ed-on-bn254 = { version = "0.3.0", default-features = false, features = [ "r1cs" ] }
+ark-bn254 = { version = "0.3.0", default-features = false, features = [ "curve" ] }
+
+# Dependencies for r1cs
+ark-nonnative-field = { version = "^0.3.0", default-features = false, optional = true }
+ark-r1cs-std = { version = "^0.3.0", default-features = false, optional = true }
+ark-relations = { version = "^0.3.0", default-features = false, optional = true }
+ark-crypto-primitives = { version = "0.3.0", features = [ "r1cs" ] }
+ark-sponge={ version = "^0.3.0", default-features = false, optional = true }
+
+tracing = { version = "0.1", default-features = false, features = [ "attributes" ], optional = true }
+#ark_test_curves = { version = "^0.3.0", default-features = false, optional = true }
+ark-test-curves = { version = "^0.3.0", features = ["bls12_381_curve", "mnt4_753_curve"]}
+
+bencher = "0.1.5"
+criterion = "0.3.4"
+
+[features]
+#default = [ "r1cs", "std",]
+
+#default = [ "bls12_377"]
+#default = [ "bls12_381"]
+default = [ "bn254c"]
+bn254c = [ "r1cs", "std",]
+bls12_381 = [ "r1cs", "std",]
+bls12_377 = [ "r1cs", "std",]
+r1cs = [ "ark-nonnative-field", "ark-relations", "ark-r1cs-std", "tracing","ark-sponge/r1cs" ]
+std = [ "ark-ec/std", "ark-ff/std", "ark-nonnative-field/std", "ark-r1cs-std/std", "ark-relations/std", "ark-std/std", "ark-serialize/std", "ark-sponge/std" ]
+#curvetype=["Bn254",]
+[[bench]]
+name = "gr16_poseidon_bench"
+harness = false
