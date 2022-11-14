@@ -124,7 +124,8 @@ pub fn groth_verify_s(
     verify_proof(&pvk, &proof, &output).unwrap()
 }
 
-#[allow(unused)]
+//#[allow(unused)]
+#[test]
 fn ttest() {
     let mut rng = test_rng();
         let cs = ConstraintSystem::new_ref();

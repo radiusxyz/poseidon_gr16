@@ -1,6 +1,7 @@
 use std::time::Instant;
+use ark_r1cs_std::{fields::fp::FpVar, prelude::AllocVar};
 use ark_sponge::{ CryptographicSponge, FieldBasedCryptographicSponge, poseidon::PoseidonSponge};
-use poseidongr16::*;
+
 //use ark_crypto_primitives::SNARK;
 //use ark_groth16::*;
 //use ark_serialize::CanonicalSerialize;
@@ -8,6 +9,49 @@ use poseidongr16::*;
 //use ark_serialize::CanonicalDeserialize;
 //use std::io::Write; // bring trait into scope
 //use std::fs::*;
+
+// added by zeroknight
+use poseidongr16::{SIZEOFINPUT, SIZEOFOUTPUT, Fr,poseidon_parameters_for_test_s };
+use poseidongr16::{groth_verify_s,groth_proof_gen_s, groth_param_gen_s, SPNGCircuit };    // Fr
+use ark_relations::r1cs::ConstraintSystem;
+use ark_std::{test_rng};
+use ark_relations::*;
+use ark_sponge::poseidon::constraints::PoseidonSpongeVar;
+use ark_ff::UniformRand;
+use ark_sponge::constraints::CryptographicSpongeVar;
+use ark_r1cs_std::R1CSVar;
+
+#[test]
+fn test_circuit_working() {     // zeroknight
+    let mut rng = ark_std::test_rng();
+        let cs = ConstraintSystem::new_ref();
+
+        let absorb1: Vec<_> = (0..SIZEOFINPUT).map(|_| Fr::rand(&mut rng)).collect();
+        let absorb1_var: Vec<_> = absorb1
+            .iter()
+            .map(|v| FpVar::new_input(ns!(cs, "absorb1"), || Ok(*v)).unwrap())
+            .collect(); 
+
+        let sponge_params = poseidon_parameters_for_test_s();
+
+        let mut native_sponge = PoseidonSponge::<Fr>::new(&sponge_params);
+        let mut constraint_sponge = PoseidonSpongeVar::<Fr>::new(cs.clone(), &sponge_params);
+
+        native_sponge.absorb(&absorb1);
+        constraint_sponge.absorb(&absorb1_var).unwrap();
+
+        let squeeze1 = native_sponge.squeeze_native_field_elements(SIZEOFOUTPUT);
+        let squeeze2 = constraint_sponge.squeeze_field_elements(SIZEOFOUTPUT).unwrap();
+       
+        let c =squeeze2.value().unwrap();
+
+        assert_eq!(c, squeeze1);
+        assert!(cs.is_satisfied().unwrap());
+
+
+}
+
+
 fn main() {
 	let start_param_gen = Instant::now();
 
@@ -30,7 +74,11 @@ fn main() {
     native_sponge.absorb(&inp);
 	//let out = inp.to_sponge_field_elements_as_vec();
     let out=native_sponge.squeeze_native_field_elements(SIZEOFOUTPUT);
-	//println!("out ={:?}",out);
+	println!("out ={:?}",out);
+
+    // temp
+
+
 
     // build the circuit
     let circuit = SPNGCircuit {

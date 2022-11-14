@@ -39,8 +39,12 @@ pub static SIZEOFOUTPUT: usize = 2;
 pub  const  SIZEOFINPUT: usize = 64;
 
 
+use ark_sponge::poseidon::PoseidonSponge;
 pub use psponge::*;
 pub use poseidon_params::*;
+
+use rand_chacha::ChaCha20Rng;
+use ark_std::rand::SeedableRng;
 
 //pub mod poseidon_params;
 //pub use poseidon_params::*;
